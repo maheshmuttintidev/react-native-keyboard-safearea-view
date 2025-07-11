@@ -21,15 +21,25 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
       
-      # Fix Yarn path issue and install deps
-      - name: Enable Corepack and install deps
+      # Fix Yarn configuration and install deps
+      - name: Setup Yarn and install dependencies
         run: |
-          corepack enable
-          # Remove yarn-path from .yarnrc.yml if it exists to avoid path conflicts
+          # Remove or backup the existing .yarnrc.yml to avoid path conflicts
           if [ -f .yarnrc.yml ]; then
-            sed -i '/yarn-path:/d' .yarnrc.yml
+            mv .yarnrc.yml .yarnrc.yml.backup
           fi
+          
+          # Create a clean .yarnrc.yml for CI
+          cat > .yarnrc.yml << EOF
+          nodeLinker: node-modules
+          enableGlobalCache: false
+          EOF
+          
+          # Enable corepack and setup yarn
+          corepack enable
           corepack prepare yarn@stable --activate
+          
+          # Install dependencies
           yarn install --immutable
       
       # Lint, type-check, test

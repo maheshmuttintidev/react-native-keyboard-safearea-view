@@ -1,10 +1,8 @@
 name: Publish Package
-
 on:
   push:
     branches:
       - main
-
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -15,40 +13,45 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
-
+      
       # Set up Node.js and Yarn
       - name: Set up Node.js and Corepack
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-
+      
+      # Fix Yarn path issue and install deps
       - name: Enable Corepack and install deps
         run: |
           corepack enable
+          # Remove yarn-path from .yarnrc.yml if it exists to avoid path conflicts
+          if [ -f .yarnrc.yml ]; then
+            sed -i '/yarn-path:/d' .yarnrc.yml
+          fi
           corepack prepare yarn@stable --activate
           yarn install --immutable
-
+      
       # Lint, type-check, test
       - name: Quality check
         run: yarn lint && yarn type-check && yarn test
-
+      
       # Build
       - name: Build package
         run: yarn build
-
+      
       # Verify output
       - name: Verify dist
         run: |
           ls dist
           test -f dist/index.js && test -f dist/index.esm.js && test -f dist/index.d.ts
-
+      
       # Git identity for commits
       - name: Configure Git
         run: |
           git config user.name "maheshmuttintidev"
           git config user.email "maheshmuttintidev@gmail.com"
-
+      
       # Bump version and commit
       - name: Bump version
         run: |
@@ -56,14 +59,14 @@ jobs:
           git add package.json
           git commit -m "chore: bump version [skip ci]" || echo "Nothing to commit"
           git push origin main
-
+      
       # Create and push version tag
       - name: Tag release
         run: |
           VERSION=$(node -p "require('./package.json').version")
           git tag v$VERSION
           git push origin v$VERSION
-
+      
       # Publish to npm
       - name: Publish to npm
         run: npm publish --access public

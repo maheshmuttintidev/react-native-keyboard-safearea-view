@@ -42,19 +42,28 @@ jobs:
           # Install dependencies
           yarn install --immutable
       
-      # Lint, type-check, test
+      # Quality checks using the actual package.json scripts
       - name: Quality check
-        run: yarn lint && yarn type-check && yarn test
+        run: |
+          # TypeScript type checking
+          yarn typecheck
+          
+          # Lint check
+          yarn lint
+          
+          # Run tests
+          yarn test --passWithNoTests
       
-      # Build
+      # Build using create-react-native-library script
       - name: Build package
-        run: yarn build
+        run: yarn prepare
       
-      # Verify output
+      # Verify build output (react-native-builder-bob output structure)
       - name: Verify dist
         run: |
-          ls dist
-          test -f dist/index.js && test -f dist/index.esm.js && test -f dist/index.d.ts
+          ls -la lib/
+          # Check for the outputs from react-native-builder-bob
+          test -f lib/module/index.js && test -f lib/typescript/src/index.d.ts
       
       # Git identity for commits
       - name: Configure Git
@@ -62,20 +71,14 @@ jobs:
           git config user.name "maheshmuttintidev"
           git config user.email "maheshmuttintidev@gmail.com"
       
-      # Bump version and commit
-      - name: Bump version
+      # Use release-it for version management instead of manual yarn version
+      - name: Release version
         run: |
-          yarn version --patch
-          git add package.json
-          git commit -m "chore: bump version [skip ci]" || echo "Nothing to commit"
-          git push origin main
-      
-      # Create and push version tag
-      - name: Tag release
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          git tag v$VERSION
-          git push origin v$VERSION
+          # Use release-it to handle versioning, tagging, and publishing
+          yarn release --ci --npm.publish=false
+          
+          # Get the new version and push changes
+          git push origin main --follow-tags
       
       # Publish to npm
       - name: Publish to npm

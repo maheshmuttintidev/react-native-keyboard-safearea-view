@@ -71,14 +71,24 @@ jobs:
           git config user.name "maheshmuttintidev"
           git config user.email "maheshmuttintidev@gmail.com"
       
-      # Use release-it for version management instead of manual yarn version
-      - name: Release version
+      # Simple version bump and tagging
+      - name: Bump version and tag
         run: |
-          # Use release-it to handle versioning, tagging, and publishing
-          yarn release --ci --npm.publish=false
+          # Bump version (patch)
+          yarn version --patch --no-git-tag-version
           
-          # Get the new version and push changes
-          git push origin main --follow-tags
+          # Get the new version
+          VERSION=$(node -p "require('./package.json').version")
+          echo "New version: $VERSION"
+          
+          # Commit version bump
+          git add package.json
+          git commit -m "chore: release v$VERSION [skip ci]"
+          
+          # Create and push tag
+          git tag "v$VERSION"
+          git push origin main
+          git push origin "v$VERSION"
       
       # Publish to npm
       - name: Publish to npm

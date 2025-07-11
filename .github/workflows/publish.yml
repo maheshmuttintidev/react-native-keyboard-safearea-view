@@ -71,15 +71,23 @@ jobs:
           git config user.name "maheshmuttintidev"
           git config user.email "maheshmuttintidev@gmail.com"
       
-      # Simple version bump and tagging
+      # Manual version bump (most reliable)
       - name: Bump version and tag
         run: |
-          # Bump version (patch)
-          yarn version --patch --no-git-tag-version
+          # Bump version using Node.js script
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            const version = pkg.version.split('.');
+            version[2] = parseInt(version[2]) + 1;
+            pkg.version = version.join('.');
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+            console.log('New version:', pkg.version);
+          "
           
           # Get the new version
           VERSION=$(node -p "require('./package.json').version")
-          echo "New version: $VERSION"
+          echo "Bumped to version: $VERSION"
           
           # Commit version bump
           git add package.json

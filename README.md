@@ -51,6 +51,24 @@ npx expo install react-native-safe-area-context react-native-keyboard-controller
 npm install @shayrn/react-native-scaler
 ```
 
+### Important Setup Steps
+
+1. **Wrap your app with `SafeAreaProvider`** (required for safe area handling):
+
+```tsx
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      {/* Your app content */}
+    </SafeAreaProvider>
+  );
+}
+```
+
+2. **For optimal keyboard handling**, the `KeyboardProvider` is automatically included in the component when `keyboardAwareScrollView={true}` (default).
+
 ## 🚀 Quick Start
 
 ```tsx
@@ -60,10 +78,7 @@ import { KeyboardSafeAreaView } from '@shayrn/react-native-keyboard-safearea-vie
 
 export default function MyScreen() {
   return (
-    <KeyboardSafeAreaView
-      safeAreaStyle={{ backgroundColor: '#f5f5f5' }}
-      keyboardAwareScrollViewStyle={{ padding: 20 }}
-    >
+    <KeyboardSafeAreaView>
       <Text style={{ fontSize: 24, marginBottom: 20 }}>Welcome!</Text>
       <TextInput
         placeholder="Enter your name"
@@ -87,11 +102,11 @@ export default function MyScreen() {
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `children` | `React.ReactNode` | **Required** | Content to render inside the safe area |
-| `safeAreaStyle` | `ViewStyle` | **Required** | Styles for the outer SafeAreaView container |
-| `keyboardAwareScrollViewStyle` | `ViewStyle` | **Required** | Styles for the KeyboardAwareScrollView |
+| `safeAreaStyle` | `ViewStyle` | `undefined` | Styles for the outer SafeAreaView container |
+| `keyboardAwareScrollViewStyle` | `ViewStyle` | `undefined` | Styles for the KeyboardAwareScrollView |
 | `header` | `React.ReactNode` | `undefined` | Optional header content rendered above the main content |
 | `footer` | `React.ReactNode` | `undefined` | Optional footer content rendered below the main content |
-| `disableEnhancedInputHandling` | `boolean` | `false` | Disable additional keyboard event listeners |
+| `disableEnhancedInputHandling` | `boolean` | `false` | (Deprecated) This prop no longer has any effect and will be removed in a future version |
 | `bottomOffset` | `number` | `0` | Additional bottom offset for keyboard calculations |
 | `resetPaddings` | `boolean` | `false` | Remove default paddings from the container |
 | `keyboardAwareScrollView` | `boolean` | `true` | Enable/disable keyboard-aware scrolling |
@@ -322,10 +337,26 @@ export default function AdvancedExample() {
 
 ## 🎯 Best Practices
 
-1. **Always provide required styles**: Both `safeAreaStyle` and `keyboardAwareScrollViewStyle` are required
-2. **Use resetPaddings wisely**: Set to `true` when you want full control over spacing
-3. **Optimize for performance**: Use `disableEnhancedInputHandling` if you don't need extra keyboard events
-4. **Test on various devices**: Always test on devices with different safe area configurations
+1. **Wrap your app with SafeAreaProvider**: Always wrap your root component with `SafeAreaProvider` from `react-native-safe-area-context`
+2. **Style props are optional**: Both `safeAreaStyle` and `keyboardAwareScrollViewStyle` are now optional for easier setup
+3. **Use resetPaddings wisely**: Set to `true` when you want full control over spacing
+4. **Test on various devices**: Always test on devices with different safe area configurations (notches, home indicators, etc.)
+5. **Keep dependencies updated**: Regularly update `react-native-keyboard-controller` and `react-native-safe-area-context` for the latest improvements
+
+## 🔒 Security
+
+This library follows security best practices:
+- Dependencies are regularly audited using `npm audit`
+- ESLint security plugin is configured to detect common vulnerabilities
+- TypeScript strict mode is enabled for type safety
+- All peer dependencies use semantic versioning for compatibility
+
+To audit dependencies in your project:
+```bash
+npm audit
+# or
+yarn audit
+```
 
 ## 🐛 Troubleshooting
 

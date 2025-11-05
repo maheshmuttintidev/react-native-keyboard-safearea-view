@@ -1,4 +1,3 @@
-
 import { Text, TextInput } from 'react-native';
 import { KeyboardSafeAreaView } from '../../src/KeyboardSafeAreaView';
 

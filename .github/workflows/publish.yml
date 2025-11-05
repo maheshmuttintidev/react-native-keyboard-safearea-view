@@ -14,49 +14,33 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
       
-      # Set up Node.js and Yarn
-      - name: Set up Node.js and Corepack
+      # Set up Node.js and npm
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-      
-      # Fix Yarn configuration and install deps
-      - name: Setup Yarn and install dependencies
-        run: |
-          # Remove or backup the existing .yarnrc.yml to avoid path conflicts
-          if [ -f .yarnrc.yml ]; then
-            mv .yarnrc.yml .yarnrc.yml.backup
-          fi
-          
-          # Create a clean .yarnrc.yml for CI
-          cat > .yarnrc.yml << EOF
-          nodeLinker: node-modules
-          enableGlobalCache: false
-          EOF
-          
-          # Enable corepack and setup yarn
-          corepack enable
-          corepack prepare yarn@stable --activate
-          
-          # Install dependencies
-          yarn install --immutable
+          cache: 'npm'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
       
       # Quality checks using the actual package.json scripts
       - name: Quality check
         run: |
           # TypeScript type checking
-          yarn typecheck
-          
+          npm run typecheck
+
           # Lint check
-          yarn lint
-          
+          npm run lint
+
           # Run tests
-          yarn test --passWithNoTests
-      
+          npm test -- --passWithNoTests
+
       # Build using create-react-native-library script
       - name: Build package
-        run: yarn prepare
+        run: npm run prepare
       
       # Verify build output (react-native-builder-bob output structure)
       - name: Verify dist

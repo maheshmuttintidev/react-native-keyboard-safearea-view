@@ -1,89 +1,62 @@
 name: Publish Package
+
+# Manual release only. Never runs on push.
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options: [patch, minor, major]
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      # Checkout repo
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
-      
-      # Set up Node.js and npm
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+          token: ${{ github.token }}
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
-      # Install dependencies
       - name: Install dependencies
         run: npm ci
-      
-      # Quality checks using the actual package.json scripts
-      - name: Quality check
+
+      - name: Quality checks
         run: |
-          # TypeScript type checking
           npm run typecheck
-
-          # Lint check
           npm run lint
-
-          # Run tests
           npm test -- --passWithNoTests
-
-      # Build using create-react-native-library script
-      - name: Build package
-        run: npm run prepare
-      
-      # Verify build output (react-native-builder-bob output structure)
-      - name: Verify dist
-        run: |
-          ls -la lib/
-          # Check for the outputs from react-native-builder-bob
+          npm run prepare
           test -f lib/module/index.js && test -f lib/typescript/src/index.d.ts
-      
-      # Git identity for commits
-      - name: Configure Git
+
+      - name: Bump version, commit and tag
+        id: version
         run: |
-          git config user.name "maheshmuttintidev"
-          git config user.email "maheshmuttintidev@gmail.com"
-      
-      # Manual version bump (most reliable)
-      - name: Bump version and tag
-        run: |
-          # Bump version using Node.js script
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-            const version = pkg.version.split('.');
-            version[2] = parseInt(version[2]) + 1;
-            pkg.version = version.join('.');
-            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
-            console.log('New version:', pkg.version);
-          "
-          
-          # Get the new version
-          VERSION=$(node -p "require('./package.json').version")
-          echo "Bumped to version: $VERSION"
-          
-          # Commit version bump
-          git add package.json
-          git commit -m "chore: release v$VERSION [skip ci]"
-          
-          # Create and push tag
-          git tag "v$VERSION"
-          git push origin main
-          git push origin "v$VERSION"
-      
-      # Publish to npm
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm version ${{ inputs.bump }} -m "chore: release v%s [skip ci]"
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
       - name: Publish to npm
-        run: npm publish --access public
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Push release commit and tag
+        run: git push origin HEAD:main --follow-tags

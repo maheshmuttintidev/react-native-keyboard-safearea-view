@@ -38,18 +38,28 @@ npx expo install @shayrn/react-native-keyboard-safearea-view
 
 ## 🔧 Required Dependencies
 
-Make sure you have these peer dependencies installed:
+Since 0.2.0 these are **peer dependencies** — install them in your app:
 
 ```bash
-# Core dependencies
-npm install react-native-safe-area-context react-native-keyboard-controller
+# Bare React Native
+npm install react-native-safe-area-context react-native-keyboard-controller react-native-reanimated @shayrn/react-native-scaler
 
-# For Expo projects
-npx expo install react-native-safe-area-context react-native-keyboard-controller
-
-# Scaling utility (if not already installed)
-npm install @shayrn/react-native-scaler
+# Expo
+npx expo install react-native-safe-area-context react-native-keyboard-controller react-native-reanimated @shayrn/react-native-scaler
 ```
+
+`react-native-keyboard-controller` requires `react-native-reanimated` (>= 3). Follow the
+[Reanimated installation guide](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/)
+(Babel plugin / worklets) for your setup.
+
+| Peer | Range |
+|------|-------|
+| react | >= 18 |
+| react-native | >= 0.73 |
+| react-native-keyboard-controller | >= 1.12 |
+| react-native-reanimated | >= 3 |
+| react-native-safe-area-context | >= 4 |
+| @shayrn/react-native-scaler | >= 1.2 |
 
 ### Important Setup Steps
 
@@ -67,7 +77,29 @@ export default function App() {
 }
 ```
 
-2. **For optimal keyboard handling**, the `KeyboardProvider` is automatically included in the component when `keyboardAwareScrollView={true}` (default).
+2. **Wrap your app once with `KeyboardProvider`** (required since 0.2.0 — the component no longer mounts its own provider):
+
+```tsx
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <KeyboardProvider>
+        {/* Your app content */}
+      </KeyboardProvider>
+    </SafeAreaProvider>
+  );
+}
+```
+
+## ⬆️ Migrating from 0.1.x to 0.2.0
+
+- `react-native-keyboard-controller`, `react-native-safe-area-context` and `@shayrn/react-native-scaler` moved from `dependencies` to `peerDependencies`; `react-native-reanimated` is now a declared peer. Install them in your app (see above).
+- `KeyboardSafeAreaView` no longer renders its own `KeyboardProvider`. Add a single `<KeyboardProvider>` at your app root.
+- The no-op `disableEnhancedInputHandling` prop was removed from the types. Delete it from your JSX.
+- `safeAreaStyle` and `keyboardAwareScrollViewStyle` now accept `StyleProp<ViewStyle>` (arrays, falsy values).
 
 ## 🚀 Quick Start
 
@@ -102,11 +134,10 @@ export default function MyScreen() {
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `children` | `React.ReactNode` | **Required** | Content to render inside the safe area |
-| `safeAreaStyle` | `ViewStyle` | `undefined` | Styles for the outer SafeAreaView container |
-| `keyboardAwareScrollViewStyle` | `ViewStyle` | `undefined` | Styles for the KeyboardAwareScrollView |
+| `safeAreaStyle` | `StyleProp<ViewStyle>` | `undefined` | Styles for the outer SafeAreaView container |
+| `keyboardAwareScrollViewStyle` | `StyleProp<ViewStyle>` | `undefined` | Styles for the KeyboardAwareScrollView |
 | `header` | `React.ReactNode` | `undefined` | Optional header content rendered above the main content |
 | `footer` | `React.ReactNode` | `undefined` | Optional footer content rendered below the main content |
-| `disableEnhancedInputHandling` | `boolean` | `false` | (Deprecated) This prop no longer has any effect and will be removed in a future version |
 | `bottomOffset` | `number` | `0` | Additional bottom offset for keyboard calculations |
 | `resetPaddings` | `boolean` | `false` | Remove default paddings from the container |
 | `keyboardAwareScrollView` | `boolean` | `true` | Enable/disable keyboard-aware scrolling |
@@ -308,7 +339,6 @@ export default function AdvancedExample() {
         paddingVertical: 10,
       }}
       bottomOffset={20}
-      disableEnhancedInputHandling={false}
       resetPaddings={false}
     >
       {/* Your content here */}
@@ -323,7 +353,7 @@ export default function AdvancedExample() {
 
 - **Default**: Automatically handles keyboard appearance/disappearance
 - **Enhanced**: Additional event listeners for fine-tuned control
-- **Disabled**: Turn off keyboard handling with `disableEnhancedInputHandling={true}`
+- **Disabled**: Turn off keyboard-aware scrolling with `keyboardAwareScrollView={false}`
 
 ### Scrolling Behavior
 
@@ -364,7 +394,7 @@ yarn audit
 
 **Keyboard not responding properly**
 - Ensure `react-native-keyboard-controller` is properly installed and linked
-- Check if `disableEnhancedInputHandling` is affecting your use case
+- Make sure a single `KeyboardProvider` wraps your app root
 
 **Safe area not working**
 - Verify `react-native-safe-area-context` is installed and the provider is set up

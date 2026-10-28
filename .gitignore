@@ -87,3 +87,5 @@ nitrogen/
 
 
 .yarn/
+example/dist/
+example/.expo/

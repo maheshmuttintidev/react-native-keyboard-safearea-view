@@ -59,6 +59,8 @@ jobs:
       - name: Setup
         uses: ./.github/setup
 
+      - name: Install example dependencies
+        run: npm ci --prefix example
+
       - name: Build example for Web
-        run: |
-          cd example && npm run web -- --platform web || exit 0
+        run: cd example && npx expo export --platform web

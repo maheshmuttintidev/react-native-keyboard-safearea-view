@@ -1,8 +1,5 @@
-import { StyleSheet, View, type ViewStyle } from 'react-native';
-import {
-  KeyboardAwareScrollView,
-  KeyboardProvider,
-} from 'react-native-keyboard-controller';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import React from 'react';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,13 +8,12 @@ import { scale } from '@shayrn/react-native-scaler';
 export type KeyboardSafeAreaViewProps = {
   children: React.ReactNode;
   header?: React.ReactNode;
-  disableEnhancedInputHandling?: boolean;
   bottomOffset?: number;
   footer?: React.ReactNode;
   resetPaddings?: boolean;
   keyboardAwareScrollView?: boolean;
-  safeAreaStyle?: ViewStyle;
-  keyboardAwareScrollViewStyle?: ViewStyle;
+  safeAreaStyle?: StyleProp<ViewStyle>;
+  keyboardAwareScrollViewStyle?: StyleProp<ViewStyle>;
 };
 
 export function KeyboardSafeAreaView({
@@ -31,23 +27,21 @@ export function KeyboardSafeAreaView({
   keyboardAwareScrollViewStyle,
 }: KeyboardSafeAreaViewProps) {
   const content = keyboardAwareScrollView ? (
-    <KeyboardProvider>
-      <KeyboardAwareScrollView
-        nestedScrollEnabled
-        contentContainerStyle={[
-          styles.container,
-          { paddingTop: resetPaddings ? 0 : scale(16) },
-          keyboardAwareScrollViewStyle,
-        ]}
-        keyboardShouldPersistTaps="handled"
-        bottomOffset={bottomOffset}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        removeClippedSubviews={false}
-      >
-        {children}
-      </KeyboardAwareScrollView>
-    </KeyboardProvider>
+    <KeyboardAwareScrollView
+      nestedScrollEnabled
+      contentContainerStyle={[
+        styles.container,
+        { paddingTop: resetPaddings ? 0 : scale(16) },
+        keyboardAwareScrollViewStyle,
+      ]}
+      keyboardShouldPersistTaps="handled"
+      bottomOffset={bottomOffset}
+      scrollEventThrottle={16}
+      showsVerticalScrollIndicator={false}
+      removeClippedSubviews={false}
+    >
+      {children}
+    </KeyboardAwareScrollView>
   ) : (
     <View style={{ flex: 1, paddingTop: resetPaddings ? 0 : scale(16) }}>
       {children}

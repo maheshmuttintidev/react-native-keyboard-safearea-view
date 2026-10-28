@@ -1,7 +1,9 @@
 import { Text, TextInput } from 'react-native';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { KeyboardSafeAreaView } from '../../src/KeyboardSafeAreaView';
 
-export default function MyScreen() {
+function MyScreen() {
   return (
     <KeyboardSafeAreaView
       safeAreaStyle={{ backgroundColor: '#f5f5f5' }}
@@ -19,5 +21,16 @@ export default function MyScreen() {
         }}
       />
     </KeyboardSafeAreaView>
+  );
+}
+
+// Wrap the whole app ONCE with SafeAreaProvider and KeyboardProvider.
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <KeyboardProvider>
+        <MyScreen />
+      </KeyboardProvider>
+    </SafeAreaProvider>
   );
 }

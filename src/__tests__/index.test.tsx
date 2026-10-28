@@ -87,14 +87,15 @@ describe('KeyboardSafeAreaView', () => {
   });
 
   it('renders with KeyboardAwareScrollView by default', () => {
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <KeyboardSafeAreaView>
         <Text>Test Content</Text>
       </KeyboardSafeAreaView>
     );
 
     expect(getByTestId('keyboard-aware-scroll-view')).toBeTruthy();
-    expect(getByTestId('keyboard-provider')).toBeTruthy();
+    // KeyboardProvider must be mounted once at the app root, not per instance
+    expect(queryByTestId('keyboard-provider')).toBeNull();
   });
 
   it('renders without KeyboardAwareScrollView when disabled', () => {
@@ -107,6 +108,18 @@ describe('KeyboardSafeAreaView', () => {
     expect(queryByTestId('keyboard-aware-scroll-view')).toBeNull();
     expect(queryByTestId('keyboard-provider')).toBeNull();
     expect(getByText('Test Content')).toBeTruthy();
+  });
+
+  it('accepts style arrays', () => {
+    const { getByText } = render(
+      <KeyboardSafeAreaView
+        safeAreaStyle={[{ flex: 1 }, { backgroundColor: 'red' }]}
+        keyboardAwareScrollViewStyle={[{ padding: 4 }, false]}
+      >
+        <Text>Styled</Text>
+      </KeyboardSafeAreaView>
+    );
+    expect(getByText('Styled')).toBeTruthy();
   });
 
   it('handles multiple children', () => {

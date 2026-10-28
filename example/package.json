@@ -12,21 +12,21 @@
     "test": "echo 'Testing example app' && exit 0"
   },
   "dependencies": {
-    "@expo/metro-runtime": "~5.0.4",
+    "@expo/metro-runtime": "~58.0.15",
     "@shayrn/react-native-scaler": "^1.2.0",
-    "expo": "~53.0.17",
-    "expo-status-bar": "~2.2.3",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "react-native": "0.79.5",
+    "expo": "~58.0.19",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-native": "0.88.0",
     "react-native-keyboard-controller": "^1.22.9",
-    "react-native-reanimated": "~3.17.4",
-    "react-native-safe-area-context": "5.4.0",
-    "react-native-web": "~0.20.0"
+    "react-native-reanimated": "~4.7.1",
+    "react-native-safe-area-context": "5.10.1",
+    "react-native-web": "~0.21.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "react-native-builder-bob": "^0.40.8"
+    "@babel/core": "^8.0.9",
+    "react-native-builder-bob": "^0.44.1"
   },
   "private": true,
   "overrides": {

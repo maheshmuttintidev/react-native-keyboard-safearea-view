@@ -8,8 +8,10 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+        update-types: [minor, patch]
       production-dependencies:
         dependency-type: production
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -25,3 +27,4 @@ updates:
     groups:
       example:
         patterns: ['*']
+        update-types: [minor, patch]
